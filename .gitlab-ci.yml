@@ -1,0 +1,44 @@
+stages:
+    - build
+    - deploy
+    - delete
+
+build:
+    stage: build
+    script:
+        - echo "Build python flask app to docker image"
+        - docker login -u rizkypanz -p Rizkypanji16
+        - docker build -f Dockerfile -t rizkypanz/helloflask:stable .
+        - docker push rizkypanz/helloflask:stable
+    only:
+        variables:
+            - $CI_COMMIT_MESSAGE =~ /build/
+    tags:
+        - gitlab-runner
+deploy:
+    stage: deploy
+    script:
+        - echo "Run kubectl on gitlab-runner"
+        - kubectl get nodes
+        - kubectl apply -f deployment-flaskapp.yaml
+        - kubectl get all -n belajar
+    only:
+        variables:
+            - $CI_COMMIT_MESSAGE =~ /deploy/
+            - $CI_COMMIT_MESSAGE =~ /build & deploy/
+    tags:
+        - gitlab-runner
+delete:
+    stage: delete
+    script:
+        - echo "Delete kubernetes deployment"
+        - kubectl delete -f deployment-flaskapp.yaml
+        - kubectl get all -n belajar
+        - echo "Delete docker image"
+        - docker rmi rizkypanz/helloflask:stable
+        - docker images
+    only:
+        variables:
+            - $CI_COMMIT_MESSAGE =~ /delete/
+    tags:
+        - gitlab-runner
