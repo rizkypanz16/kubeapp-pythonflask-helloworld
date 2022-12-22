@@ -7,7 +7,9 @@ build:
     stage: build
     script:
         - echo "Build python flask app to docker image"
-        - docker login -u rizkypanz -p Rizkypanji16
+        # Replace <DOCKER_REGISTRY_USER> command with DockerHub Username
+        # Replace <DOCKER_REGISTRY_PASSWORD> command with DockerHub Password
+        - docker login -u <DOCKER_REGISTRY_USER> -p <DOCKER_REGISTRY_PASSWORD>
         - docker build -f Dockerfile -t rizkypanz/helloflask:stable .
         - docker push rizkypanz/helloflask:stable
     only:
